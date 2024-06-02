@@ -11,10 +11,11 @@ services:
       - 43306:3306
     volumes:
       - ./initdb.d:/docker-entrypoint-initdb.d
-    networks:
-      - mysql-network
     command: "--character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci"
 
-networks:
-  mysql-network:
-    driver: bridge
+  server:
+    image: school-api-pekko:0.1.0
+    container_name: school-api
+    ports:
+      - 48080:8080
+
