@@ -4,6 +4,6 @@ import scala.concurrent.Future
 
 trait Queries {
 
-  def students(request: StudentsRequest): Future[StudentResponse]
+  def students(request: StudentsRequest): Future[StudentsResponse]
 
 }

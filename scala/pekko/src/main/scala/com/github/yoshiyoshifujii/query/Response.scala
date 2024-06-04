@@ -2,8 +2,8 @@ package com.github.yoshiyoshifujii.query
 
 sealed trait Response
 
-sealed trait StudentResponse extends Response
-object StudentResponse {
+sealed trait StudentsResponse extends Response
+object StudentsResponse {
 
   final case class ClassRoom(
       id: Int,
@@ -20,8 +20,8 @@ object StudentResponse {
   final case class Students(
       students: Vector[Student],
       totalCount: Int
-  ) extends StudentResponse
+  ) extends StudentsResponse
 
-  final case class NotFound() extends StudentResponse
+  final case class NotFound() extends StudentsResponse
 
 }
