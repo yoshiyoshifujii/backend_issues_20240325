@@ -4,6 +4,7 @@ import cats.effect.IO
 import cats.effect.unsafe.implicits._
 import cats.free.Free
 import com.github.yoshiyoshifujii.query.{ Queries, StudentsRequest, StudentsResponse }
+import doobie.Fragment
 import doobie.free.connection
 import doobie.implicits._
 import doobie.util.transactor.Transactor
@@ -26,8 +27,9 @@ private final case class StudentDTO(
 class QueriesImpl(transactor: Transactor[IO]) extends Queries {
 
   override def students(request: StudentsRequest): Future[StudentsResponse] = {
-    def findStudents: Free[connection.ConnectionOp, Vector[StudentsResponse.Student]] =
-      sql"""
+    def findStudents: Free[connection.ConnectionOp, Vector[StudentsResponse.Student]] = {
+      val select =
+        fr"""
          select
            s.id as id,
            s.name as name,
@@ -39,8 +41,21 @@ class QueriesImpl(transactor: Transactor[IO]) extends Queries {
          inner join classes c on s.class_id = c.id
          where
            s.facilitator_id = ${request.facilitatorId}
+          """
+
+      val order = fr"order by " ++ Fragment.const(request.orderBy)
+
+      val limit =
+        fr"""
          limit ${request.limit.value}
-       """
+          """
+
+      val offset =
+        fr"""
+         offset ${request.offset}
+          """
+
+      (select ++ order ++ limit ++ offset)
         .query[StudentDTO]
         .to[Vector]
         .map(_.map { dto =>
@@ -51,6 +66,7 @@ class QueriesImpl(transactor: Transactor[IO]) extends Queries {
             StudentsResponse.ClassRoom(dto.class_id, dto.class_name)
           )
         })
+    }
 
     def count: Free[connection.ConnectionOp, Int] =
       sql"""

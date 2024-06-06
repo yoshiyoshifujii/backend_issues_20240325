@@ -18,9 +18,9 @@ object Main extends App {
   private val hostName: String      = sys.env.getOrElse("HOST_NAME", "0.0.0.0")
   private val port: Int             = sys.env.getOrElse("PORT", "8080").toInt
   private val mysqlDriver: String   = sys.env.getOrElse("MYSQL_DRIVER", "com.mysql.cj.jdbc.Driver")
-  private val mysqlUrl: String      = sys.env.getOrElse("MYSQL_URL", "jdbc:mysql://localhost:3306/school")
-  private val mysqlUser: String     = sys.env.getOrElse("MYSQL_USER", "root")
-  private val mysqlPassword: String = sys.env.getOrElse("MYSQL_PASSWORD", "password")
+  private val mysqlUrl: String      = sys.env.getOrElse("MYSQL_URL", "jdbc:mysql://localhost:43306/school")
+  private val mysqlUser: String     = sys.env.getOrElse("MYSQL_USER", "user")
+  private val mysqlPassword: String = sys.env.getOrElse("MYSQL_PASSWORD", "passw0rd")
 
   implicit private val system: ActorSystem[Any] = ActorSystem(Behaviors.empty, "school-api")
   implicit private val ec: ExecutionContext     = system.executionContext

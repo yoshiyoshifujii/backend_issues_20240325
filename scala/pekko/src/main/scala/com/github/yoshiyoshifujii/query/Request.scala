@@ -16,11 +16,13 @@ object Limit {
   val default: Limit = Limit(5)
 }
 
-sealed trait Sort
+abstract class Sort(value: String) {
+  def asString: String = value
+}
 object Sort {
-  case object id      extends Sort
-  case object name    extends Sort
-  case object loginId extends Sort
+  case object id      extends Sort("id")
+  case object name    extends Sort("name")
+  case object loginId extends Sort("login_id")
 
   def fromString(value: String): Sort =
     value match {
@@ -32,10 +34,12 @@ object Sort {
   val default: Sort = this.id
 }
 
-sealed trait Order
+abstract class Order(value: String) {
+  def asString: String = value
+}
 object Order {
-  case object asc  extends Order
-  case object desc extends Order
+  case object asc  extends Order("asc")
+  case object desc extends Order("desc")
 
   def fromString(value: String): Order =
     value match {
@@ -60,4 +64,7 @@ final case class StudentsRequest(
     sort: Sort,
     order: Order,
     like: Option[Like]
-) extends Request
+) extends Request {
+  lazy val orderBy: String = s"${sort.asString} ${order.asString}"
+  lazy val offset: Int     = limit.value * (page.value - 1)
+}
