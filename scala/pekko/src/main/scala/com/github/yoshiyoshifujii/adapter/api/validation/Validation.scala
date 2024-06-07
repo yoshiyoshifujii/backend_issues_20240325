@@ -118,7 +118,7 @@ object Validation {
         maybeLoginIdLike,
         minLength = 1,
         maxLength = 50,
-        allowedPattern = """^[a-zA-Z0-9\s]+$""".r,
+        allowedPattern = """^[a-zA-Z0-9_.#:-]+$""".r,
         apply = LoginIdLike.apply,
         keyName = "loginId_like"
       )

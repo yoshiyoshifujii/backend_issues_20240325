@@ -27,6 +27,20 @@ private final case class StudentDTO(
 class QueriesImpl(transactor: Transactor[IO]) extends Queries {
 
   override def students(request: StudentsRequest): Future[StudentsResponse] = {
+    val nameLikeCondition = request.nameLike match {
+      case None => Fragment.empty
+      case Some(nameLike) =>
+        val searchString = s"%${nameLike.value}%"
+        fr"and s.name like $searchString"
+    }
+
+    val loginIdLikeCondition = request.loginIdLike match {
+      case None => Fragment.empty
+      case Some(loginIdLike) =>
+        val searchString = s"%${loginIdLike.value}%"
+        fr"and s.login_id like $searchString"
+    }
+
     def findStudents: Free[connection.ConnectionOp, Vector[StudentsResponse.Student]] = {
       val select =
         fr"""
@@ -43,19 +57,19 @@ class QueriesImpl(transactor: Transactor[IO]) extends Queries {
            s.facilitator_id = ${request.facilitatorId}
           """
 
-      val order = fr"order by " ++ Fragment.const(request.orderBy)
+      val order =
+        fr"""
+         order by""" ++ Fragment.const(request.orderBy)
 
       val limit =
         fr"""
-         limit ${request.limit.value}
-          """
+         limit ${request.limit.value}"""
 
       val offset =
         fr"""
-         offset ${request.offset}
-          """
+         offset ${request.offset}"""
 
-      (select ++ order ++ limit ++ offset)
+      (select ++ nameLikeCondition ++ loginIdLikeCondition ++ order ++ limit ++ offset)
         .query[StudentDTO]
         .to[Vector]
         .map(_.map { dto =>
@@ -68,18 +82,22 @@ class QueriesImpl(transactor: Transactor[IO]) extends Queries {
         })
     }
 
-    def count: Free[connection.ConnectionOp, Int] =
-      sql"""
+    def count: Free[connection.ConnectionOp, Int] = {
+      val select =
+        fr"""
          select
            count(s.id) as cnt
          from students s
          inner join classes c on s.class_id = c.id
          where
            s.facilitator_id = ${request.facilitatorId}
-         """
+          """
+
+      (select ++ nameLikeCondition ++ loginIdLikeCondition)
         .query[CountDTO]
         .unique
         .map(_.cnt)
+    }
 
     (for {
       students   <- findStudents
