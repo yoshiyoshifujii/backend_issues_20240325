@@ -1,0 +1,103 @@
+openapi: 3.0.0
+info:
+  title: Student Management API
+  version: 1.0.0
+  description: API for managing students
+servers:
+  - url: http://localhost:48080
+paths:
+  /students:
+    get:
+      summary: Get list of students
+      parameters:
+        - in: query
+          name: facilitator_id
+          schema:
+            type: integer
+          required: true
+          description: The ID of the teacher (facilitator)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          required: false
+          description: The page number for pagination
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 5
+          required: false
+          description: The number of records per page
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: id
+            enum:
+              - id
+              - name
+              - loginId
+          required: false
+          description: The field to sort by
+        - in: query
+          name: order
+          schema:
+            type: string
+            default: asc
+            enum:
+              - asc
+              - desc
+          required: false
+          description: The order of sorting (asc for ascending, desc for descending)
+        - in: query
+          name: name_like
+          schema:
+            type: string
+          required: false
+          description: Partial match search for student name
+        - in: query
+          name: loginId_like
+          schema:
+            type: string
+          required: false
+          description: Partial match search for student login ID
+      responses:
+        '200':
+          description: A list of students
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  students:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: The ID of the student
+                        name:
+                          type: string
+                          description: The name of the student
+                        loginId:
+                          type: string
+                          description: The login ID of the student
+                        classroom:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              description: The ID of the class
+                            name:
+                              type: string
+                              description: The name of the class
+                  totalCount:
+                    type: integer
+                    description: The total number of students matching the query
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found
