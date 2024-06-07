@@ -1,6 +1,7 @@
 package com.github.yoshiyoshifujii.adapter.api.handler
 
 import com.github.yoshiyoshifujii.adapter.api.model.json.ErrorResponseJson
+import com.github.yoshiyoshifujii.adapter.api.validation.ValidationRejection
 import org.apache.pekko.http.scaladsl.model.StatusCodes.BadRequest
 import org.apache.pekko.http.scaladsl.server.Directives.complete
 import org.apache.pekko.http.scaladsl.server.{
@@ -32,6 +33,13 @@ object SchoolApiRejectionHandler {
                 s"Request query is malformed: '$parameterName' (error: $errorMsg)${cause
                     .map(c => s" (cause: ${c.getMessage})").getOrElse("")}"
               )
+            )
+          )
+        case ValidationRejection(invalid) =>
+          complete(
+            (
+              BadRequest,
+              ErrorResponseJson(invalid.message)
             )
           )
       }
